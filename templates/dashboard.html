@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="mt-4">
+    <h2>Welcome, {{ username }}!</h2>
+    <p>Manage your tasks efficiently. Add new tasks, track progress, and view updates.</p>
+
+    <!-- Overdue Tasks Alert -->
+    {% if overdue_tasks %}
+    <div class="alert alert-danger">
+      <strong>Overdue Tasks!</strong>
+      <ul>
+        {% for task in overdue_tasks %}
+          <li>{{ task[1] }} - Deadline: {{ task[3] }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Upcoming Tasks Alert -->
+    {% if soon_tasks %}
+    <div class="alert alert-warning">
+      <strong>Upcoming Deadlines!</strong>
+      <ul>
+        {% for task in soon_tasks %}
+          <li>{{ task[1] }} - Deadline: {{ task[3] }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Add New Task Form -->
+    <div class="card mb-4" style="background-color: #FFFECB;">
+      <div class="card-body">
+        <h5 class="card-title">Add New Task</h5>
+        <form method="POST" action="{{ url_for('dashboard') }}">
+          <div class="mb-3">
+            <label for="task_name" class="form-label">Task Name</label>
+            <input type="text" name="task_name" class="form-control" id="task_name" placeholder="Enter task name..." required>
+          </div>
+
+          <input type="hidden" name="assigned_to" value="{{ session.get('user_id') }}">
+
+          <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select name="status" class="form-select" id="status">
+              <option value="Pending" selected>Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="deadline" class="form-label">Deadline</label>
+            <input type="datetime-local" name="deadline" class="form-control" id="deadline" required>
+          </div>
+
+          <button type="submit" class="btn" style="background-color:#4CC9FE; border:none;">
+            <i class="bi bi-plus-circle-fill"></i> Add Task
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tasks List -->
+    <h4>Your Tasks</h4>
+    <ul id="tasks" class="list-group">
+      {% for task in tasks %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ task[1] }}</strong>
+          <span class="badge" style="background-color:#37AFE1;">{{ task[2] }}</span>
+          {% if task[6] is not none %} | Progress: {{ task[6] }}%{% endif %}
+          {% if task[3] %} | Deadline: {{ task[3] }}{% endif %}
+        </div>
+        <div class="d-flex">
+          <a href="{{ url_for('add_update', task_id=task[0]) }}" class="btn btn-sm me-2" style="background-color:#4CC9FE; border:none;">
+            <i class="bi bi-pencil-square"></i> Add Update
+          </a>
+          <a href="{{ url_for('task_updates', task_id=task[0]) }}" class="btn btn-sm me-2" style="background-color:#37AFE1; border:none;">
+            <i class="bi bi-eye-fill"></i> View Updates
+          </a>
+          <form method="POST" action="{{ url_for('update_task', task_id=task[0]) }}" class="d-flex">
+            <select name="status" class="form-select me-2" style="width:auto;">
+              <option value="Pending" {% if task[2] == "Pending" %}selected{% endif %}>Pending</option>
+              <option value="In Progress" {% if task[2] == "In Progress" %}selected{% endif %}>In Progress</option>
+              <option value="Completed" {% if task[2] == "Completed" %}selected{% endif %}>Completed</option>
+            </select>
+            <button type="submit" class="btn btn-sm" style="background-color:#4CC9FE; border:none;">
+              <i class="bi bi-arrow-repeat"></i> Update
+            </button>
+          </form>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+</div>
+
+<!-- Real-time Task Addition Script -->
+<script>
+  const socket = io();
+  socket.on('connect', () => {
+    console.log('Connected to server via WebSocket');
+  });
+
+  socket.on('new_task', (data) => {
+    const tasksList = document.getElementById('tasks');
+    const li = document.createElement('li');
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    li.innerHTML =
+      <div>
+        <strong>${data.task_name}</strong>
+        <span class="badge" style="background-color:#37AFE1;">Pending</span> | Deadline: TBD
+      </div>
+      <div class="d-flex">
+        <a href="#" class="btn btn-sm me-2" style="background-color:#4CC9FE; border:none;">
+          <i class="bi bi-pencil-square"></i> Add Update
+        </a>
+        <a href="#" class="btn btn-sm me-2" style="background-color:#37AFE1; border:none;">
+          <i class="bi bi-eye-fill"></i> View Updates
+        </a>
+        <form method="POST" action="#" class="d-flex">
+          <select name="status" class="form-select me-2" style="width:auto;">
+            <option value="Pending" selected>Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <button class="btn btn-sm" style="background-color:#4CC9FE; border:none;">
+            <i class="bi bi-arrow-repeat"></i> Update
+          </button>
+        </form>
+      </div>
+    ;
+    tasksList.prepend(li);
+  });
+</script>
+{% endblock %}

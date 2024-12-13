@@ -1,0 +1,299 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4" style="flex: 1 0 auto;">
+    <h1 class="text-center mb-4">Admin Dashboard</h1>
+
+    <!-- Tabs for Switching Between User and Task Management -->
+    <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="true">Manage Users</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button" role="tab" aria-controls="tasks" aria-selected="false">Manage Tasks</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="adminTabsContent">
+        <!-- Manage Users Tab -->
+        <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5>Manage Users</h5>
+                    <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">Add User</button>
+                </div>
+
+                <!-- Add User Modal -->
+                <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addUserModalLabel">Add User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ url_for('add_user') }}">
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="username" name="username" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Add User</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Tasks</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user['id'] }}</td>
+                                <td>{{ user['username'] }}</td>
+                                <td>{{ user['email'] }}</td>
+                                <td>{{ user['role'] }}</td>
+                                <td>
+                                    <select class="form-select">
+                                        {% for task in tasks if task['assigned_to'] == user['email'] %}
+                                            <option value="{{ task['id'] }}">{{ task['task_name'] }} ({{ task['status'] }})</option>
+                                        {% else %}
+                                            <option disabled>No tasks assigned</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal-{{ user['id'] }}">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#changeRoleModal-{{ user['id'] }}">
+                                        <i class="bi bi-person-lines-fill"></i> Change Role
+                                    </button>
+                                    <form method="POST" action="{{ url_for('delete_user', user_id=user['id']) }}" style="display:inline;">
+                                        <button class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            <!-- Edit User Modal -->
+                            <div class="modal fade" id="editUserModal-{{ user['id'] }}" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="POST" action="{{ url_for('edit_user', user_id=user['id']) }}">
+                                                <div class="mb-3">
+                                                    <label for="username-{{ user['id'] }}" class="form-label">Username</label>
+                                                    <input type="text" class="form-control" id="username-{{ user['id'] }}" name="username" value="{{ user['username'] }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="email-{{ user['id'] }}" class="form-label">Email</label>
+                                                    <input type="email" class="form-control" id="email-{{ user['id'] }}" name="email" value="{{ user['email'] }}" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Change Role Modal -->
+                            <div class="modal fade" id="changeRoleModal-{{ user['id'] }}" tabindex="-1" aria-labelledby="changeRoleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="changeRoleModalLabel">Change Role</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="POST" action="{{ url_for('change_role', user_id=user['id']) }}">
+                                                <div class="mb-3">
+                                                    <label for="role-{{ user['id'] }}" class="form-label">Role</label>
+                                                    <select class="form-control" id="role-{{ user['id'] }}" name="role">
+                                                        <option value="User" {% if user['role'] == 'User' %}selected{% endif %}>User</option>
+                                                        <option value="Admin" {% if user['role'] == 'Admin' %}selected{% endif %}>Admin</option>
+                                                    </select>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Update Role</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Tasks Tab -->
+        <div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5>Manage Tasks</h5>
+                    <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal">Add Task</button>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Task Name</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Assigned To</th>
+                                <th>Created At</th>
+                                <th>Deadline</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr>
+                                <td>{{ task['id'] }}</td>
+                                <td>{{ task['task_name'] }}</td>
+                                <td>{{ task['status'] }}</td>
+                                <td>{{ task['progress'] }}%</td>
+                                <td>{{ task['assigned_to'] }}</td>
+                                <td>{{ task['created_at'] }}</td>
+                                <td>{{ task['deadline'] }}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal-{{ task['id'] }}">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <form method="POST" action="{{ url_for('delete_task', task_id=task['id']) }}" style="display:inline;">
+                                        <button class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            <!-- Edit Task Modal -->
+                            <div class="modal fade" id="editTaskModal-{{ task['id'] }}" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="POST" action="{{ url_for('edit_task', task_id=task['id']) }}">
+                                                <div class="mb-3">
+                                                    <label for="task_name-{{ task['id'] }}" class="form-label">Task Name</label>
+                                                    <input type="text" class="form-control" id="task_name-{{ task['id'] }}" name="task_name" value="{{ task['task_name'] }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="status-{{ task['id'] }}" class="form-label">Status</label>
+                                                    <select class="form-control" id="status-{{ task['id'] }}" name="status">
+                                                        <option value="Pending" {% if task['status'] == 'Pending' %}selected{% endif %}>Pending</option>
+                                                        <option value="In Progress" {% if task['status'] == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                                        <option value="Completed" {% if task['status'] == 'Completed' %}selected{% endif %}>Completed</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="progress-{{ task['id'] }}" class="form-label">Progress (%)</label>
+                                                    <input type="number" class="form-control" id="progress-{{ task['id'] }}" name="progress" value="{{ task['progress'] }}" min="0" max="100">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="assigned_to-{{ task['id'] }}" class="form-label">Assigned To</label>
+                                                    <select class="form-control" id="assigned_to-{{ task['id'] }}" name="assigned_to">
+                                                        {% for user in users %}
+                                                        <option value="{{ user['id'] }}" {% if task['assigned_to'] == user['id'] %}selected{% endif %}>{{ user['username'] }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="deadline-{{ task['id'] }}" class="form-label">Deadline</label>
+                                                    <input type="date" class="form-control" id="deadline-{{ task['id'] }}" name="deadline" value="{{ task['deadline'] }}">
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Task Modal -->
+        <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addTaskModalLabel">Add Task</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{{ url_for('add_task') }}">
+                            <div class="mb-3">
+                                <label for="task_name" class="form-label">Task Name</label>
+                                <input type="text" class="form-control" id="task_name" name="task_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-control" id="status" name="status" required>
+                                    <option value="Pending">Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="progress" class="form-label">Progress (%)</label>
+                                <input type="number" class="form-control" id="progress" name="progress" min="0" max="100" value="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="assigned_to" class="form-label">Assigned To</label>
+                                <select class="form-control" id="assigned_to" name="assigned_to" required>
+                                    {% for user in users %}
+                                    <option value="{{ user['email'] }}">{{ user['email'] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="created_at" class="form-label">Created At</label>
+                                <input type="date" class="form-control" id="created_at" name="created_at" value="{{ current_date }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="deadline" class="form-label">Deadline</label>
+                                <input type="date" class="form-control" id="deadline" name="deadline" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Task</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

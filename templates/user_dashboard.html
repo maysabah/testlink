@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">User Dashboard</h1>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5>Your Tasks</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Task Name</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th>Admin Responsible</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task['id'] }}</td>
+                        <td>{{ task['task_name'] }}</td>
+                        <td>{{ task['status'] }}</td>
+                        <td>{{ task['deadline'] or 'No deadline set' }}</td>
+                        <td>{{ task['admin_name'] or 'No admin assigned' }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('change_task_status', task_id=task['id']) }}" class="d-inline">
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="Pending" {% if task['status'] == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Ready for Review" {% if task['status'] == 'Ready for Review' %}selected{% endif %}>Ready for Review</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary mt-1">Update</button>
+                            </form>
+                            <button class="btn btn-sm btn-secondary mt-1" data-bs-toggle="modal" data-bs-target="#commentModal-{{ task['id'] }}">Add Comment</button>
+                        </td>
+                    </tr>
+
+                    <!-- Comment Modal -->
+                    <div class="modal fade" id="commentModal-{{ task['id'] }}" tabindex="-1" aria-labelledby="commentModalLabel-{{ task['id'] }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="commentModalLabel-{{ task['id'] }}">Add Comment for Task {{ task['id'] }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="POST" action="{{ url_for('add_task_comment', task_id=task['id']) }}">
+                                        <div class="mb-3">
+                                            <label for="comment" class="form-label">Comment</label>
+                                            <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Submit Comment</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

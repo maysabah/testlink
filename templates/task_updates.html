@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="mt-4">
+  <h2>Daily Updates for "{{ task_name }}"</h2>
+  {% if updates %}
+    <ul class="list-group">
+      {% for update in updates %}
+      <li class="list-group-item" style="background-color: #F5F4B3;">
+        <strong>{{ update[1] }}</strong> - {{ update[0] }}
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No updates available for this task yet.</p>
+  {% endif %}
+  <a href="{{ url_for('dashboard') }}" class="btn mt-3" style="background-color:#37AFE1; border:none;">
+    <i class="bi bi-arrow-left-circle-fill"></i> Back to Dashboard
+  </a>
+</div>
+{% endblock %}

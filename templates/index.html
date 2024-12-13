@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+<div>
+    <img src="index.html" alt="">
+    <div class="text-center mt-5">
+        <h1>Welcome to TaskLink</h1>
+        <p>Efficiently manage and track your team's tasks with ease.</p>
+        {% if not session.get('user_id') %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary m-2" style="border:none;">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-secondary m-2" style=" border:none;">
+                <i class="bi bi-person-plus-fill"></i> Sign Up
+            </a>
+        {% else %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-success m-2" style="background-color:#FF8C00 ; border:none;">
+                <i class="bi bi-speedometer2"></i> Go to Dashboard
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

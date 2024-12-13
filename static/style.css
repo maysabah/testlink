@@ -1,0 +1,100 @@
+
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;/* Creamy light background */
+  color: #003161; /* Dark Blue text */
+  background-color: #F7F7F7;
+}
+
+.navbar {
+  background: linear-gradient(135deg, #003161, #006A67); /* Gradient with dark blue and turquoise */
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.8rem;
+}
+
+.nav-link {
+  color: #F3F3E0; /* Creamy color for links */
+  transition: color 0.3s ease;
+  font-size: 20px;
+}
+
+.nav-link:hover {
+  color: #FF8C00; /* Turquoise color on hover */
+}
+
+footer {
+  background-color: #003161; /* Dark Blue for footer */
+  color: white;
+  /* padding: 1rem 0; */
+  text-align: center;
+  height: 60px;
+}
+
+/* الوضع الداكن (Dark Mode) */
+body.dark-theme {
+  background: linear-gradient(135deg, #000000e0, #012f2f); /* Dark background */
+  color: #F3F3E0; /* Light creamy text */
+}
+
+.navbar.dark-theme {
+  background: linear-gradient(135deg, #000B58, #006A67); /* Dark gradient navbar */
+}
+
+.nav-link.dark-theme {
+  color: #F3F3E0; /* Light creamy links */
+  
+}
+
+footer.dark-theme {
+  background-color: #000B58; /* Dark navy for footer */
+  color: #F3F3E0; /* Light creamy text */
+}
+
+/* Button with gradient */
+.btn-primary {
+  background: linear-gradient(135deg, #003161, #006A67); /* Gradient from dark blue to turquoise */
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 30px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #006A67, #003161); /* Reverse gradient on hover */
+  transform: scale(1.05); /* Slight zoom effect on hover */
+}
+/* Logo Styling */
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #003161; /* Dark Blue */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  color: #F3F3E0; /* Creamy color */
+  font-size: 30px;
+}
+
+.logo-text {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #FFF5E0; /* Dark blue */
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.logo-text span {
+  color: #FF8C00; /* Orange for 'Link' */
+}

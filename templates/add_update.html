@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="mt-4">
+  <h2>Add Daily Update</h2>
+  <div class="card" style="background-color: #FFFECB;">
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('add_update', task_id=task_id) }}">
+        <div class="mb-3">
+          <label for="update_text" class="form-label">Today's Update</label>
+          <textarea class="form-control" id="update_text" name="update_text" rows="4" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="progress" class="form-label">Progress (%)</label>
+          <input type="number" class="form-control" id="progress" name="progress" min="0" max="100">
+          <small class="text-muted">Optional: Update the task's progress.</small>
+        </div>
+        <button type="submit" class="btn" style="background-color:#4CC9FE; border:none;">
+          <i class="bi bi-plus-circle-fill"></i> Add Update
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
